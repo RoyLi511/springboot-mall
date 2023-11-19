@@ -1,6 +1,6 @@
 package com.royli.springbootmall.service;
 
-import com.royli.springbootmall.dao.ProductQueryParams;
+import com.royli.springbootmall.dto.ProductQueryParams;
 import com.royli.springbootmall.dto.ProductRequest;
 import com.royli.springbootmall.model.Product;
 

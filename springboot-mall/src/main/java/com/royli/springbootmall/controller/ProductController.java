@@ -1,7 +1,7 @@
 package com.royli.springbootmall.controller;
 
 import com.royli.springbootmall.constant.ProductCategory;
-import com.royli.springbootmall.dao.ProductQueryParams;
+import com.royli.springbootmall.dto.ProductQueryParams;
 import com.royli.springbootmall.dto.ProductRequest;
 import com.royli.springbootmall.model.Product;
 import com.royli.springbootmall.service.ProductService;

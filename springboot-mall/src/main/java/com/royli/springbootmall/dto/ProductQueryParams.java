@@ -1,4 +1,4 @@
-package com.royli.springbootmall.dao;
+package com.royli.springbootmall.dto;
 
 import com.royli.springbootmall.constant.ProductCategory;
 
