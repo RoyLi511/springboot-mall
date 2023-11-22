@@ -1,6 +1,7 @@
 package com.royli.springbootmall.controller;
 
 import com.royli.springbootmall.dto.CreateOrderRequest;
+import com.royli.springbootmall.model.Order;
 import com.royli.springbootmall.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,9 @@ public class OrderController {
 
         Integer orderId = orderService.createOrder(userId, createOrderRequest);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderId);
+        // 訂單回傳給前端
+        Order order = orderService.getOrderById(orderId);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(order);
     }
 }
