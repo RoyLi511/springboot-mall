@@ -1,11 +1,14 @@
 package com.royli.springbootmall.dao;
 
+import com.royli.springbootmall.dto.OrderQueryParams;
 import com.royli.springbootmall.model.Order;
 import com.royli.springbootmall.model.OrderItem;
 
 import java.util.List;
 
 public interface OrderDao {
+    Integer countOrder(OrderQueryParams orderQueryParams);
+    List<Order> getOrders(OrderQueryParams orderQueryParams);
 
     Order getOrderById(Integer orderId);
     List<OrderItem> getOrderItemsByOrderId(Integer orderId);

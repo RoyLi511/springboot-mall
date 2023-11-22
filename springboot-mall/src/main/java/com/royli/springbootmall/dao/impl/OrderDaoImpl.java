@@ -1,6 +1,7 @@
 package com.royli.springbootmall.dao.impl;
 
 import com.royli.springbootmall.dao.OrderDao;
+import com.royli.springbootmall.dto.OrderQueryParams;
 import com.royli.springbootmall.model.Order;
 import com.royli.springbootmall.model.OrderItem;
 import com.royli.springbootmall.rowmapper.OrderItemRowMapper;
@@ -24,9 +25,45 @@ public class OrderDaoImpl implements OrderDao {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
+    public Integer countOrder(OrderQueryParams orderQueryParams) {
+        String sql = "SELECT count(*) FROM `order` WHERE 1=1";
+
+        Map<String, Object> map = new HashMap<>();
+
+        // 查詢條件
+        sql = addFilteringSql(sql, map, orderQueryParams);
+
+        Integer total = namedParameterJdbcTemplate.queryForObject(sql, map, Integer.class);
+
+        return total;
+    }
+
+    @Override
+    public List<Order> getOrders(OrderQueryParams orderQueryParams) {
+        String sql = "SELECT order_id, user_id, total_amount, created_date, last_modified_date FROM `order` WHERE 1=1";
+
+        Map<String, Object> map = new HashMap<>();
+
+        // 查詢條件
+        sql = addFilteringSql(sql, map, orderQueryParams);
+
+        // 排序
+        sql = sql + " ORDER BY created_date DESC";
+
+        // 分頁
+        sql = sql + " LIMIT :limit OFFSET :offset";
+        map.put("limit", orderQueryParams.getLimit());
+        map.put("offset", orderQueryParams.getOffset());
+
+        List<Order> orderList = namedParameterJdbcTemplate.query(sql, map, new OrderRowMapper());
+
+        return orderList;
+    }
+
+    @Override
     public Order getOrderById(Integer orderId) {
         String sql = "SELECT order_id, user_id, total_amount, created_date, last_modified_date " +
-                     "FROM `order` WHERE order_id = :orderId";
+                "FROM `order` WHERE order_id = :orderId";
 
         Map<String, Object> map = new HashMap<>();
         map.put("orderId", orderId);
@@ -43,9 +80,9 @@ public class OrderDaoImpl implements OrderDao {
     @Override
     public List<OrderItem> getOrderItemsByOrderId(Integer orderId) {
         String sql = "SELECT oi.order_item_id, oi.order_id, oi.product_id, oi.quantity, oi.amount, p.product_name, p.image_url " +
-                     "FROM order_item as oi " +
-                     "LEFT JOIN product as p ON oi.product_id = p.product_id " +
-                     "WHERE oi.order_id = :orderId";
+                "FROM order_item as oi " +
+                "LEFT JOIN product as p ON oi.product_id = p.product_id " +
+                "WHERE oi.order_id = :orderId";
 
         Map<String, Object> map = new HashMap<>();
         map.put("orderId", orderId);
@@ -58,7 +95,7 @@ public class OrderDaoImpl implements OrderDao {
     @Override
     public Integer createOrder(Integer userId, Integer totalAmount) {
         String sql = "INSERT INTO `order`(user_id, total_amount, created_date, last_modified_date) " +
-                     "VALUES(:userId, :totalAmount, :createdDate, :lastModifiedDate)";
+                "VALUES(:userId, :totalAmount, :createdDate, :lastModifiedDate)";
 
         Map<String, Object> map = new HashMap<>();
         map.put("userId", userId);
@@ -97,7 +134,7 @@ public class OrderDaoImpl implements OrderDao {
 
         // 使用 batchUpdate 一次性加入數據，效率更高
         String sql = "INSERT INTO order_item(order_id, product_id, quantity, amount) " +
-                     "VALUES (:orderId, :productId, :quantity, :amount)";
+                "VALUES (:orderId, :productId, :quantity, :amount)";
 
         MapSqlParameterSource[] parameterSources = new MapSqlParameterSource[orderItemList.size()];
 
@@ -112,5 +149,14 @@ public class OrderDaoImpl implements OrderDao {
         }
 
         namedParameterJdbcTemplate.batchUpdate(sql, parameterSources);
+    }
+
+    public String addFilteringSql(String sql, Map<String, Object> map, OrderQueryParams orderQueryParams) {
+        if (orderQueryParams.getUserId() != null) {
+            sql = sql + " AND user_id = :userId";
+            map.put("userId", orderQueryParams.getUserId());
+        }
+
+        return sql;
     }
 }
